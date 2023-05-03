@@ -11,7 +11,7 @@ def save_image_from_url(url, file_name, params=None):
         file.write(response.content)
 
 
-def get_comix_json(url):
+def get_comix_info(url):
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
@@ -74,11 +74,13 @@ def posting_wall(token, group_id, message, photo_owner_id, photo_id):
 def main():
     load_dotenv()
 
-    comix_json = get_comix_json(f"https://xkcd.com/{randint(0, 2770)}/info.0.json")
-    comix_img_url = comix_json['img']
+    comix_count = 2770
+    comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
+    comix_info = get_comix_info(comix_url)
+    comix_img_url = comix_info['img']
     comix_file_name = comix_img_url.split("/")[-1]
     save_image_from_url(comix_img_url, comix_file_name)
-    alt_comix = comix_json['alt']
+    alt_comix = comix_info['alt']
 
     upload_server_url = get_upload_server_url(
                             os.getenv("VK_ACCESS_TOKEN"),
