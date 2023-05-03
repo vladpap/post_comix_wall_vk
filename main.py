@@ -58,7 +58,7 @@ def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
     response.raise_for_status()
 
     wall_photo_info = response.json()["response"][0]
-    
+
     return wall_photo_info["owner_id"], wall_photo_info["id"]
 
 
@@ -85,7 +85,7 @@ def main():
     comix_img_url = comix_info['img']
     comix_file_name = os.path.split(unquote(urlparse(comix_img_url).path))[-1]
     save_image_from_url(comix_img_url, comix_file_name)
-    alt_comix = comix_info['alt']
+    comix_description = comix_info['alt']
 
     upload_server_url = get_upload_server_url(
                             os.getenv("VK_ACCESS_TOKEN"),
@@ -103,7 +103,7 @@ def main():
 
     posting_wall(os.getenv("VK_ACCESS_TOKEN"),
                  os.getenv("VK_GROUP_ID"),
-                 alt_comix,
+                 comix_description,
                  photo_owner_id,
                  photo_id)
 
