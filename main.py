@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 from urllib.parse import urlparse, unquote
 
 
+class VkApiError(Exception):
+    pass
+
+
 def get_random_comix():
     comix_count = 2770
     comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
@@ -25,6 +29,14 @@ def get_random_comix():
     return comix_file_name, comix_description
 
 
+def raise_vk_response_for_error(vk_response, msg=""):
+    if "error" in vk_response:
+        error = vk_response["error"]
+        except_message = "VK API Error ({}):\ncode: {}\n{}".format(
+            msg, error['error_code'], error['error_msg'])
+        raise VkApiError(except_message)
+
+
 def get_upload_server_url(token, group_id):
     url = "https://api.vk.com/method/photos.getWallUploadServer"
     params = {
@@ -34,8 +46,12 @@ def get_upload_server_url(token, group_id):
     }
     response = requests.get(url, params=params)
     response.raise_for_status()
+    server_url_info = response.json()
 
-    return response.json()["response"]["upload_url"]
+    raise_vk_response_for_error(server_url_info,
+                                msg="Method getWallUploadServer")
+
+    return server_url_info["response"]["upload_url"]
 
 
 def upload_photo_server(url, file_name):
@@ -46,6 +62,9 @@ def upload_photo_server(url, file_name):
 
         server_photo_info = response.json()
 
+        if server_photo_info["photo"] == "[]":
+            raise VkApiError("Error upload photo on server.")
+
         return server_photo_info["photo"],\
             server_photo_info["server"],\
             server_photo_info["hash"]
@@ -55,7 +74,7 @@ def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
     url = "https://api.vk.com/method/photos.saveWallPhoto"
     params = {
         "access_token": token,
-        "group_id":  group_id,
+        "group_id": group_id,
         "v": 5.131,
         "photo": photo_urls,
         "server": photo_server,
@@ -64,7 +83,12 @@ def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
     response = requests.post(url, params=params)
     response.raise_for_status()
 
-    wall_photo_info = response.json()["response"][0]
+    response_info = response.json()
+
+    raise_vk_response_for_error(response_info,
+                                msg="Method photos.saveWallPhoto")
+
+    wall_photo_info = response_info["response"][0]
 
     return wall_photo_info["owner_id"], wall_photo_info["id"]
 
@@ -75,12 +99,14 @@ def posting_wall(token, group_id, message, photo_owner_id, photo_id):
         "access_token": token,
         "v": 5.131,
         "owner_id": "-{}".format(group_id),
-        "from_group": group_id,
         "message": message,
         "attachments": "photo{}_{}".format(photo_owner_id, photo_id)
         }
     response = requests.post(url, params=params)
     response.raise_for_status()
+
+    raise_vk_response_for_error(response.json(),
+                                msg="Method wall.post")
 
 
 def main():
@@ -89,9 +115,10 @@ def main():
     VK_GROUP_ID = os.getenv("VK_GROUP_ID")
 
     try:
+
         comix_file_name, comix_description = get_random_comix()
 
-        upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN,VK_GROUP_ID)
+        upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN, VK_GROUP_ID)
 
         photo_urls, photo_server, photo_hash = upload_photo_server(
             upload_server_url,
@@ -108,6 +135,9 @@ def main():
                      comix_description,
                      photo_owner_id,
                      photo_id)
+    except VkApiError as e:
+        print(e)
+        print("line", e.__traceback__.tb_lineno)
     except Exception as e:
         raise e
     finally:
