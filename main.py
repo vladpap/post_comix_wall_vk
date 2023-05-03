@@ -5,13 +5,6 @@ from dotenv import load_dotenv
 from urllib.parse import urlparse, unquote
 
 
-def save_image_from_url(url, file_name, params=None):
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    with open(file_name, 'wb') as file:
-        file.write(response.content)
-
-
 def get_random_comix():
     comix_count = 2770
     comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
@@ -23,7 +16,11 @@ def get_random_comix():
     comix_file_name = os.path.split(unquote(urlparse(comix_img_url).path))[-1]
     comix_description = comix_info['alt']
 
-    save_image_from_url(comix_img_url, comix_file_name)
+    response = requests.get(comix_img_url)
+    response.raise_for_status()
+
+    with open(comix_file_name, 'wb') as file:
+        file.write(response.content)
 
     return comix_file_name, comix_description
 
@@ -91,27 +88,30 @@ def main():
     VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
     VK_GROUP_ID = os.getenv("VK_GROUP_ID")
 
-    comix_file_name, comix_description = get_random_comix()
+    try:
+        comix_file_name, comix_description = get_random_comix()
 
-    upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN,VK_GROUP_ID)
+        upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN,VK_GROUP_ID)
 
-    photo_urls, photo_server, photo_hash = upload_photo_server(
-        upload_server_url,
-        comix_file_name)
+        photo_urls, photo_server, photo_hash = upload_photo_server(
+            upload_server_url,
+            comix_file_name)
 
-    photo_owner_id, photo_id = save_wall_photo(VK_ACCESS_TOKEN,
-                                               VK_GROUP_ID,
-                                               photo_urls,
-                                               photo_server,
-                                               photo_hash)
+        photo_owner_id, photo_id = save_wall_photo(VK_ACCESS_TOKEN,
+                                                   VK_GROUP_ID,
+                                                   photo_urls,
+                                                   photo_server,
+                                                   photo_hash)
 
-    posting_wall(VK_ACCESS_TOKEN,
-                 VK_GROUP_ID,
-                 comix_description,
-                 photo_owner_id,
-                 photo_id)
-
-    os.remove(comix_file_name)
+        posting_wall(VK_ACCESS_TOKEN,
+                     VK_GROUP_ID,
+                     comix_description,
+                     photo_owner_id,
+                     photo_id)
+    except Exception as e:
+        raise e
+    finally:
+        os.remove(comix_file_name)
 
 
 if __name__ == "__main__":
