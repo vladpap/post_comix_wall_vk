@@ -32,13 +32,14 @@ def get_upload_server_url(token, group_id):
 
 
 def upload_photo_server(url, file_name):
-    files = {"photo": open(file_name, 'rb')}
-    response = requests.post(url, files=files)
-    response.raise_for_status()
+    with open(file_name, "rb") as photo_file:
+        files = {"photo": photo_file}
+        response = requests.post(url, files=files)
+        response.raise_for_status()
 
-    return response.json()["photo"],\
-        response.json()["server"],\
-        response.json()["hash"]
+        return response.json()["photo"],\
+            response.json()["server"],\
+            response.json()["hash"]
 
 
 def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
