@@ -12,10 +12,20 @@ def save_image_from_url(url, file_name, params=None):
         file.write(response.content)
 
 
-def get_comix_info(url):
-    response = requests.get(url)
+def get_random_comix():
+    comix_count = 2770
+    comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
+    response = requests.get(comix_url)
     response.raise_for_status()
-    return response.json()
+
+    comix_info = response.json()
+    comix_img_url = comix_info['img']
+    comix_file_name = os.path.split(unquote(urlparse(comix_img_url).path))[-1]
+    comix_description = comix_info['alt']
+
+    save_image_from_url(comix_img_url, comix_file_name)
+
+    return comix_file_name, comix_description
 
 
 def get_upload_server_url(token, group_id):
@@ -81,13 +91,7 @@ def main():
     VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
     VK_GROUP_ID = os.getenv("VK_GROUP_ID")
 
-    comix_count = 2770
-    comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
-    comix_info = get_comix_info(comix_url)
-    comix_img_url = comix_info['img']
-    comix_file_name = os.path.split(unquote(urlparse(comix_img_url).path))[-1]
-    save_image_from_url(comix_img_url, comix_file_name)
-    comix_description = comix_info['alt']
+    comix_file_name, comix_description = get_random_comix()
 
     upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN,VK_GROUP_ID)
 
