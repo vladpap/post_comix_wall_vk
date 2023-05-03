@@ -2,6 +2,7 @@ import os
 import requests
 from random import randint
 from dotenv import load_dotenv
+from urllib.parse import urlparse, unquote
 
 
 def save_image_from_url(url, file_name, params=None):
@@ -78,7 +79,7 @@ def main():
     comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
     comix_info = get_comix_info(comix_url)
     comix_img_url = comix_info['img']
-    comix_file_name = comix_img_url.split("/")[-1]
+    comix_file_name = os.path.split(unquote(urlparse(comix_img_url).path))[-1]
     save_image_from_url(comix_img_url, comix_file_name)
     alt_comix = comix_info['alt']
 
