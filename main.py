@@ -47,8 +47,8 @@ def upload_photo_server(url, file_name):
 def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
     url = "https://api.vk.com/method/photos.saveWallPhoto"
     params = {
-        "access_token": os.getenv("VK_ACCESS_TOKEN"),
-        "group_id":  os.getenv("VK_GROUP_ID"),
+        "access_token": token,
+        "group_id":  group_id,
         "v": 5.131,
         "photo": photo_urls,
         "server": photo_server,
@@ -78,6 +78,8 @@ def posting_wall(token, group_id, message, photo_owner_id, photo_id):
 
 def main():
     load_dotenv()
+    VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
+    VK_GROUP_ID = os.getenv("VK_GROUP_ID")
 
     comix_count = 2770
     comix_url = f"https://xkcd.com/{randint(0, comix_count)}/info.0.json"
@@ -87,22 +89,20 @@ def main():
     save_image_from_url(comix_img_url, comix_file_name)
     comix_description = comix_info['alt']
 
-    upload_server_url = get_upload_server_url(
-                            os.getenv("VK_ACCESS_TOKEN"),
-                            os.getenv("VK_GROUP_ID"))
+    upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN,VK_GROUP_ID)
 
     photo_urls, photo_server, photo_hash = upload_photo_server(
         upload_server_url,
         comix_file_name)
 
-    photo_owner_id, photo_id = save_wall_photo(os.getenv("VK_ACCESS_TOKEN"),
-                                               os.getenv("VK_GROUP_ID"),
+    photo_owner_id, photo_id = save_wall_photo(VK_ACCESS_TOKEN,
+                                               VK_GROUP_ID,
                                                photo_urls,
                                                photo_server,
                                                photo_hash)
 
-    posting_wall(os.getenv("VK_ACCESS_TOKEN"),
-                 os.getenv("VK_GROUP_ID"),
+    posting_wall(VK_ACCESS_TOKEN,
+                 VK_GROUP_ID,
                  comix_description,
                  photo_owner_id,
                  photo_id)
