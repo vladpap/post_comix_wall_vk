@@ -37,9 +37,11 @@ def upload_photo_server(url, file_name):
         response = requests.post(url, files=files)
         response.raise_for_status()
 
-        return response.json()["photo"],\
-            response.json()["server"],\
-            response.json()["hash"]
+        server_photo_info = response.json()
+
+        return server_photo_info["photo"],\
+            server_photo_info["server"],\
+            server_photo_info["hash"]
 
 
 def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
@@ -55,8 +57,9 @@ def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
     response = requests.post(url, params=params)
     response.raise_for_status()
 
-    return response.json()["response"][0]["owner_id"],\
-        response.json()["response"][0]["id"]
+    wall_photo_info = response.json()["response"][0]
+    
+    return wall_photo_info["owner_id"], wall_photo_info["id"]
 
 
 def posting_wall(token, group_id, message, photo_owner_id, photo_id):
