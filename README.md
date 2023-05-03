@@ -12,9 +12,20 @@
 ```console
 $ pip install -r requirements.txt
 ```
-Переменные окружения:
-- `VK_ACCESS_TOKEN` Токен API Вконтакте
-- `VK_GROUP_ID` id приложения ВКонтакте, права приложения: `photos`, `groups`, `wall` и `offline`.
+
+- Создать группу ВКонтакте.
+
+- Создать приложение с правами: `photos`, `groups`, `wall` и `offline`.
+
+- Получить токен
+
+- Создать файл `.env` с переменными:
+    - `VK_GROUP_ID` - id группы ВКонтакте, куда постить комиксы;
+    - `VK_ACCESS_TOKEN` токен приложения ВКонтакте.
+```console
+VK_GROUP_ID=***********
+VK_ACCESS_TOKEN=**********
+```
 
 ## Запуск
 
