@@ -58,16 +58,16 @@ def upload_photo_server(url, file_name):
     with open(file_name, "rb") as photo_file:
         files = {"photo": photo_file}
         response = requests.post(url, files=files)
-        response.raise_for_status()
+    response.raise_for_status()
 
-        server_photo_metadata = response.json()
+    server_photo_metadata = response.json()
 
-        if server_photo_metadata["photo"] == "[]":
-            raise VkApiError("Error upload photo on server.")
+    if server_photo_metadata["photo"] == "[]":
+        raise VkApiError("Error upload photo on server.")
 
-        return server_photo_metadata["photo"],\
-            server_photo_metadata["server"],\
-            server_photo_metadata["hash"]
+    return server_photo_metadata["photo"],\
+        server_photo_metadata["server"],\
+        server_photo_metadata["hash"]
 
 
 def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
