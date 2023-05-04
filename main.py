@@ -15,10 +15,10 @@ def get_random_comix():
     response = requests.get(comix_url)
     response.raise_for_status()
 
-    comix_info = response.json()
-    comix_img_url = comix_info['img']
+    comix_metadata = response.json()
+    comix_img_url = comix_metadata['img']
     comix_file_name = os.path.split(unquote(urlparse(comix_img_url).path))[-1]
-    comix_description = comix_info['alt']
+    comix_description = comix_metadata['alt']
 
     response = requests.get(comix_img_url)
     response.raise_for_status()
@@ -46,12 +46,12 @@ def get_upload_server_url(token, group_id):
     }
     response = requests.get(url, params=params)
     response.raise_for_status()
-    server_url_info = response.json()
+    server_url_metadata = response.json()
 
-    raise_vk_response_for_error(server_url_info,
+    raise_vk_response_for_error(server_url_metadata,
                                 msg="Method getWallUploadServer")
 
-    return server_url_info["response"]["upload_url"]
+    return server_url_metadata["response"]["upload_url"]
 
 
 def upload_photo_server(url, file_name):
@@ -60,14 +60,14 @@ def upload_photo_server(url, file_name):
         response = requests.post(url, files=files)
         response.raise_for_status()
 
-        server_photo_info = response.json()
+        server_photo_metadata = response.json()
 
-        if server_photo_info["photo"] == "[]":
+        if server_photo_metadata["photo"] == "[]":
             raise VkApiError("Error upload photo on server.")
 
-        return server_photo_info["photo"],\
-            server_photo_info["server"],\
-            server_photo_info["hash"]
+        return server_photo_metadata["photo"],\
+            server_photo_metadata["server"],\
+            server_photo_metadata["hash"]
 
 
 def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
@@ -83,14 +83,12 @@ def save_wall_photo(token, group_id, photo_urls, photo_server, photo_hash):
     response = requests.post(url, params=params)
     response.raise_for_status()
 
-    response_info = response.json()
-
-    raise_vk_response_for_error(response_info,
+    raise_vk_response_for_error(response.json(),
                                 msg="Method photos.saveWallPhoto")
 
-    wall_photo_info = response_info["response"][0]
+    wall_photo_metadata = response.json()["response"][0]
 
-    return wall_photo_info["owner_id"], wall_photo_info["id"]
+    return wall_photo_metadata["owner_id"], wall_photo_metadata["id"]
 
 
 def posting_wall(token, group_id, message, photo_owner_id, photo_id):
