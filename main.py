@@ -136,8 +136,6 @@ def main():
     except VkApiError as e:
         print(e)
         print("line", e.__traceback__.tb_lineno)
-    except Exception as e:
-        raise e
     finally:
         os.remove(comix_file_name)
 
