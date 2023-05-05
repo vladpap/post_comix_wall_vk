@@ -109,27 +109,27 @@ def posting_wall(token, group_id, message, photo_owner_id, photo_id):
 
 def main():
     load_dotenv()
-    VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
-    VK_GROUP_ID = os.getenv("VK_GROUP_ID")
+    vk_access_token = os.getenv("VK_ACCESS_TOKEN")
+    vk_group_id = os.getenv("VK_GROUP_ID")
 
     try:
 
         comix_file_name, comix_description = get_random_comix()
 
-        upload_server_url = get_upload_server_url(VK_ACCESS_TOKEN, VK_GROUP_ID)
+        upload_server_url = get_upload_server_url(vk_access_token, vk_group_id)
 
         photo_urls, photo_server, photo_hash = upload_photo_server(
             upload_server_url,
             comix_file_name)
 
-        photo_owner_id, photo_id = save_wall_photo(VK_ACCESS_TOKEN,
-                                                   VK_GROUP_ID,
+        photo_owner_id, photo_id = save_wall_photo(vk_access_token,
+                                                   vk_group_id,
                                                    photo_urls,
                                                    photo_server,
                                                    photo_hash)
 
-        posting_wall(VK_ACCESS_TOKEN,
-                     VK_GROUP_ID,
+        posting_wall(vk_access_token,
+                     vk_group_id,
                      comix_description,
                      photo_owner_id,
                      photo_id)
