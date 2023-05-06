@@ -109,20 +109,8 @@ def posting_wall(token, group_id, message, photo_owner_id, photo_id):
 
 def main():
     load_dotenv()
-    vk_access_token = os.environ.get("VK_ACCESS_TOKEN")
-    vk_group_id = os.environ.get("VK_GROUP_ID")
-
-    error_environ = ""
-    if not vk_access_token:
-        error_environ = \
-            "\nError: not defined environment variable 'VK_ACCESS_TOKEN'."
-    if not vk_group_id:
-        error_environ += \
-            "\nError: not defined environment variable 'VK_GROUP_ID'."
-
-    if error_environ:
-        print(error_environ)
-        exit(0)
+    vk_access_token = os.environ["VK_ACCESS_TOKEN"]
+    vk_group_id = os.environ["VK_GROUP_ID"]
 
     try:
 
