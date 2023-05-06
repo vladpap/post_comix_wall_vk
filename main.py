@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 from random import randint
 from dotenv import load_dotenv
@@ -109,8 +110,13 @@ def posting_wall(token, group_id, message, photo_owner_id, photo_id):
 
 def main():
     load_dotenv()
-    vk_access_token = os.environ["VK_ACCESS_TOKEN"]
-    vk_group_id = os.environ["VK_GROUP_ID"]
+    try:
+        vk_access_token = os.environ["VK_ACCESS_TOKEN"]
+        vk_group_id = os.environ["VK_GROUP_ID"]
+    except KeyError:
+        print("Not defined environment variable {}, see README.md".format(
+            sys.exc_info()[1]))
+        return
 
     try:
 
